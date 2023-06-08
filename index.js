@@ -33,6 +33,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const usersCollection = client.db("musicfairy").collection("users");
+    const classesCollection = client.db("musicfairy").collection("classes");
 
 // user data
 app.get('/users', async (req, res) => {
@@ -84,6 +85,19 @@ app.patch('/users/role/:id', async (req, res) => {
     const result = await usersCollection.updateOne(filter, updateDoc);
     res.send(result);
 
+  })
+
+
+  //set classes
+  app.get('/classes', async (req, res) => {
+    const result = await classesCollection.find().toArray();
+    res.send(result);
+  })
+
+  app.post('/classes', async (req, res) => {
+    const newClass = req.body;
+    const result = await classesCollection.insertOne(newClass)
+    res.send(result);
   })
 
 
