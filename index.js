@@ -32,8 +32,11 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    // database collection
     const usersCollection = client.db("musicfairy").collection("users");
     const classesCollection = client.db("musicfairy").collection("classes");
+    const cartCollection = client.db("musicfairy").collection("carts");
 
 // user data
 app.get('/users', async (req, res) => {
@@ -141,11 +144,13 @@ app.put('/classes/updateclass/:id', async (req, res) => {
 app.patch('/classes/status/:id', async (req, res) => {
     const id = req.params.id;
     console.log(id);
-    const { status } = req.body;
+    const  status  = req.body;
+    console.log(status);
     const filter = { _id: new ObjectId(id) };
     const updateDoc = {
       $set: {
-        status: status
+        status: status.status,
+        feedback: status.feedback,
       },
     };
 
@@ -153,7 +158,31 @@ app.patch('/classes/status/:id', async (req, res) => {
     res.send(result);
 
   })
+// carts
+app.get('/carts', async (req, res) => {
+    const email = req.query.email;
 
+    if (!email) {
+      res.send([]);
+    }
+    const query = { email: email };
+    const result = await cartCollection.find(query).toArray();
+    res.send(result);
+  });
+  
+app.post('/carts', async (req, res) => {
+    const item = req.body;
+    console.log(item);
+    const result = await cartCollection.insertOne(item);
+    res.send(result);
+  });
+
+  app.delete('/carts/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const result = await cartCollection.deleteOne(query);
+    res.send(result);
+  })
 
 
     // Send a ping to confirm a successful connection
