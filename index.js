@@ -94,6 +94,50 @@ app.patch('/users/role/:id', async (req, res) => {
     const result = await classesCollection.insertOne(newClass)
     res.send(result);
   })
+// to get class by email
+  app.get('/classes/:email', async (req, res) => {
+    const email = req.params.email;
+    const query = { email: email }
+    const result = await classesCollection.find(query).toArray();
+    res.send(result);
+  })
+//   for update class
+
+
+app.get('/classes/updateclass/:id', async (req, res) => {
+    const id = req.params.id;
+    console.log(id);
+    const query = {_id: new ObjectId(id) };
+    const result = await classesCollection.findOne(query);
+    console.log(id);
+    res.send(result)
+  })
+
+//   updated data on class
+app.put('/classes/updateclass/:id', async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const options={upsert:true};
+    const updatedClass = req.body;
+    const updateDoc = {
+      $set: {
+        Instructorname:updatedClass.Instructorname,
+        price:updatedClass.price,
+        email:updatedClass.email,
+        category:updatedClass.category,
+        classname:updatedClass.classname,
+        seats:updatedClass.seats,
+        classurl:updatedClass.classurl,
+        status:updatedClass.status,
+        photoUrl:updatedClass.photoUrl,
+      },
+    };
+
+    const result = await classesCollection.updateOne(filter, updateDoc,options);
+    res.send(result);
+
+  })
+
 
 
     // Send a ping to confirm a successful connection
