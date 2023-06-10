@@ -18,7 +18,7 @@ app.use(express.json())
 const verifyJWT = (req, res, next) => {
     const authorization = req.headers.authorization;
     if (!authorization) {
-      return res.status(401).send({ error: true, message: 'unauthorized access' });
+      return res.status(401).send({ error: true, message: 'unauthorized token access' });
     }
     // bearer token
     const token = authorization.split(' ')[1];
@@ -86,8 +86,16 @@ app.post('/users', async (req, res) => {
     res.send(result);
   });
 // get user role
-app.get('/users/role/:email', async (req, res) => {
+app.get('/users/role/:email',verifyJWT, async (req, res) => {
     const email = req.params.email;
+    if (!email) {
+        res.send([]);
+      }
+  
+      const decodedEmail = req.decoded.email;
+      if (email !== decodedEmail) {
+        return res.status(403).send({ error: true, message: 'forbidden access' })
+      }
     const query = { email: email }
     const user = await usersCollection.findOne(query);
     const result = { role: user?.role}
