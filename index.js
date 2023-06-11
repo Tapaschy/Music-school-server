@@ -264,11 +264,17 @@ async function run() {
     app.post('/payments', verifyJWT, async (req, res) => {
         const payment = req.body;
         const insertResult = await paymentCollection.insertOne(payment);
-  
         const query = { _id: new ObjectId(payment.itemId) } 
+        
+        console.log(payment.classId);
         const deleteResult = await cartCollection.deleteOne(query);
+        // const classId = { _id: new ObjectId(payment.classId) } 
+        const enrooledresult = await classesCollection.updateOne(
+            { _id: new ObjectId(payment.classId), seats: { $gt: 0 } },
+            { $inc: { seats: -1, enrolled: 1 } }
+          );
   
-        res.send(insertResult);
+        res.send({insertResult,enrooledresult});
       })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
