@@ -90,7 +90,7 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         });
-        // get user role
+        // get user role from site
         app.get('/users/role/:email', async (req, res) => {
             const email = req.params.email;
 
