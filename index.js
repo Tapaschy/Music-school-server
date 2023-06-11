@@ -268,10 +268,6 @@ async function run() {
         
         console.log(payment.classId);
         const deleteResult = await cartCollection.deleteOne(query);
-        const enrooledresult = await classesCollection.updateOne(
-            { _id: new ObjectId(payment.classId), seats: { $gt: 0 } },
-            { $inc: { seats: -1, enrolled: 1 } }
-          );
   
         res.send({insertResult,enrooledresult});
       })
