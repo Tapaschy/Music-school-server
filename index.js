@@ -205,6 +205,23 @@ async function run() {
             res.send(result);
 
         })
+        // for enrolled classes
+        app.get('/enrolled', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+
+            if (!email) {
+                res.send([]);
+            }
+
+            const decodedEmail = req.decoded.email;
+            if (email !== decodedEmail) {
+                return res.status(403).send({ error: true, message: 'Forbidden access' })
+            }
+
+            const query = { email: email };
+            const result = await paymentCollection.find(query).toArray();
+            res.send(result);
+        });
         // carts
         app.get('/carts', verifyJWT, async (req, res) => {
             const email = req.query.email;
@@ -215,7 +232,7 @@ async function run() {
 
             const decodedEmail = req.decoded.email;
             if (email !== decodedEmail) {
-                return res.status(403).send({ error: true, message: 'porviden access' })
+                return res.status(403).send({ error: true, message: 'Forbidden access' })
             }
 
             const query = { email: email };
@@ -268,6 +285,10 @@ async function run() {
         
         console.log(payment.classId);
         const deleteResult = await cartCollection.deleteOne(query);
+        const enrooledresult = await classesCollection.updateOne(
+            { _id: new ObjectId(payment.classId), seats: { $gt: 0 } },
+            { $inc: { seats: -1, enrolled: 1 } }
+          );
   
         res.send({insertResult,enrooledresult});
       })
